@@ -43,7 +43,7 @@
             overflow: hidden;
         }
         .container { display: grid; grid-template-columns: 320px 1fr 320px; width: 100%; gap: 20px; padding: 20px; box-sizing: border-box; grid-template-rows: minmax(0, 1fr); }
-        #leaderboard { min-height: 0; }
+        #leaderboard { min-height: 0; max-height: min(360px, calc(100vh - 220px)); overflow-y: auto; }
         .panel {
             background: var(--panel-bg);
             border-radius: 20px;
@@ -1175,7 +1175,6 @@
             <div class="auth-form">
                 <input type="text" id="auth-login-input" placeholder="Логин" autocomplete="off">
                 <input type="password" id="auth-pass-input" placeholder="Пароль" autocomplete="off">
-                <input type="text" id="auth-channel-input" placeholder="Канал Twitch без @" autocomplete="off">
                 <div style="display:flex; gap:8px;">
                     <button class="btn-main btn-purple" type="button" onclick="applyAuthSettings()">ПОДКЛЮЧИТЬ</button>
                 </div>
@@ -1908,7 +1907,8 @@
             }
         }
         function openAuthModal() {
-            document.getElementById('auth-channel-input').value = '';
+            document.getElementById('auth-login-input').value = '';
+            document.getElementById('auth-pass-input').value = '';
             document.getElementById('auth-modal').style.display = 'flex';
         }
         function openAuthHelp() {
@@ -2003,11 +2003,8 @@
                 alert('Неверный логин или пароль.');
                 return;
             }
-            let channelValue = sanitizeChannelName(document.getElementById('auth-channel-input').value);
-            if (!channelValue) {
-                // Автоподключение к аккаунту lity____ по этому паролю
-                channelValue = 'lity____';
-            }
+            // Канал всегда подключается автоматически к аккаунту lity____
+            const channelValue = sanitizeChannelName('lity____');
             currentChannelName = channelValue;
             if (sanitizeChannelName(channelValue) === '0savelka0') {
                 currentCodeword = '+';
@@ -2772,9 +2769,6 @@
             const autos = document.getElementById('autoskip-checkbox');
             if (autos) autos.addEventListener('change', (e) => { autoSpinEnabled = !!e.target.checked; });
         }, 200);
-        document.getElementById('auth-channel-input').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') applyAuthSettings();
-        });
         document.getElementById('auth-login-input').addEventListener('keydown', (event) => {
             if (event.key === 'Enter') document.getElementById('auth-pass-input').focus();
         });
