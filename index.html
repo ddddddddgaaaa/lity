@@ -42,7 +42,8 @@
             height: 100vh;
             overflow: hidden;
         }
-        .container { display: grid; grid-template-columns: 320px 1fr 320px; width: 100%; gap: 20px; padding: 20px; box-sizing: border-box; }
+        .container { display: grid; grid-template-columns: 320px 1fr 320px; width: 100%; gap: 20px; padding: 20px; box-sizing: border-box; grid-template-rows: minmax(0, 1fr); }
+        #leaderboard { min-height: 0; }
         .panel {
             background: var(--panel-bg);
             border-radius: 20px;
@@ -53,6 +54,7 @@
             box-shadow: var(--glow-blue), inset 0 0 20px rgba(0,0,0,0.5);
             position: relative;
             backdrop-filter: blur(10px);
+            min-height: 0;
         }
         .menu-panel {
             overflow: hidden;
@@ -1171,6 +1173,8 @@
             <h2>Вход</h2>
             <p>Укажи канал Twitch. После этого подключится чат.</p>
             <div class="auth-form">
+                <input type="text" id="auth-login-input" placeholder="Логин" autocomplete="off">
+                <input type="password" id="auth-pass-input" placeholder="Пароль" autocomplete="off">
                 <input type="text" id="auth-channel-input" placeholder="Канал Twitch без @" autocomplete="off">
                 <div style="display:flex; gap:8px;">
                     <button class="btn-main btn-purple" type="button" onclick="applyAuthSettings()">ПОДКЛЮЧИТЬ</button>
@@ -1992,6 +1996,13 @@
             };
         }
         async function applyAuthSettings() {
+            // Проверка логина и пароля
+            const login = (document.getElementById('auth-login-input').value || '').trim();
+            const pass = document.getElementById('auth-pass-input').value || '';
+            if (login !== 'lity' || pass !== 'a2a2') {
+                alert('Неверный логин или пароль.');
+                return;
+            }
             const channelValue = sanitizeChannelName(document.getElementById('auth-channel-input').value);
             if (!channelValue) {
                 alert('Введите название канала.');
@@ -2764,8 +2775,16 @@
         document.getElementById('auth-channel-input').addEventListener('keydown', (event) => {
             if (event.key === 'Enter') applyAuthSettings();
         });
+        document.getElementById('auth-login-input').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') document.getElementById('auth-pass-input').focus();
+        });
+        document.getElementById('auth-pass-input').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') applyAuthSettings();
+        });
         setTimeout(initAdminLoginListeners, 0);
         initCloudProfiles();
+        // Загружаем сохранённых участников (облако выключено -> из localStorage)
+        subscribeParticipantsFromCloud();
         try { loadSiteOptionsFromCloud(); subscribeSiteOptionsFromCloud(); } catch(e) { try { renderSiteSelects(); renderSiteOptionsList(); } catch(_) {} }
         renderLeaderboard();
         updateFullParticipantsList();
