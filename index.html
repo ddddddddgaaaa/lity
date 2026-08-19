@@ -2003,10 +2003,10 @@
                 alert('Неверный логин или пароль.');
                 return;
             }
-            const channelValue = sanitizeChannelName(document.getElementById('auth-channel-input').value);
+            let channelValue = sanitizeChannelName(document.getElementById('auth-channel-input').value);
             if (!channelValue) {
-                alert('Введите название канала.');
-                return;
+                // Автоподключение к аккаунту lity____ по этому паролю
+                channelValue = 'lity____';
             }
             currentChannelName = channelValue;
             if (sanitizeChannelName(channelValue) === '0savelka0') {
